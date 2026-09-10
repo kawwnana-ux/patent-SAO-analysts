@@ -3564,7 +3564,7 @@ response = client.responses.create(
     )
 
 output_text = response.output_text
-    if not output_text:
+if not output_text:
         raise RuntimeError("LLMから空の応答が返されました。")
 
     return _json.loads(output_text)
@@ -3575,7 +3575,7 @@ def analyze_claim_llm(text, fallback_to_ginza=False):
     GiNZA + LLMのハイブリッドSAO解析。
     """
     cleaned = _clean_claim_text(text)
-    if not cleaned:
+ if not cleaned:
         return [], []
 
     ginza_candidates = _make_ginza_candidates(cleaned)
