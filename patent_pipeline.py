@@ -3600,35 +3600,46 @@ if not output_text:
 return _json.loads(output_text)
 
 
+
 def analyze_claim_llm(text, fallback_to_ginza=False):
     """
     GiNZA + LLMのハイブリッドSAO解析。
     """
     cleaned = _clean_claim_text(text)
-if not cleaned:
+
+    if not cleaned:
         return [], []
 
-ginza_candidates = _make_ginza_candidates(cleaned)
+    ginza_candidates = _make_ginza_candidates(cleaned)
 
-llm_result = _call_llm_for_sao(cleaned, ginza_candidates)
+    try:
+        llm_result = _call_llm_for_sao(cleaned, ginza_candidates)
 
-components, relations = _normalize_llm_result(llm_result)
+        components, relations = _normalize_llm_result(llm_result)
 
-if not components and not relations:
-        raise RuntimeError("LLMは空のSAO結果を返しました。")
+        if not components and not relations:
+            raise RuntimeError("LLMは空のSAO結果を返しました。")
 
-return components, relations
+        return components, relations
 
-except Exception as e:
+    except Exception as e:
         if fallback_to_ginza:
             components, relations = _ginza_analyze_claim(cleaned)
-            # 後からUI側で「LLM失敗→GiNZA」を確認できるようにメタ情報を付与。
+
+            # 後からUI側で「LLM失敗→GiNZA」を確認できるようにメタ情報を付与
             for c in components:
                 c.setdefault("source", "ginza_fallback")
+
             for r in relations:
                 r.setdefault("source", "ginza_fallback")
+
             return components, relations
-        raise RuntimeError(f"LLMによるSAO解析に失敗しました: {e}") from e
+
+        raise RuntimeError(
+            f"LLMによるSAO解析に失敗しました: {e}"
+        ) from e
+
+
 
 
 # 既存アプリの analyze_claim(text) 呼び出しを変更せず、
