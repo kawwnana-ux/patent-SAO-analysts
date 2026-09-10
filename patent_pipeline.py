@@ -3617,7 +3617,7 @@ components, relations = _normalize_llm_result(llm_result)
 if not components and not relations:
         raise RuntimeError("LLMは空のSAO結果を返しました。")
 
-    return components, relations
+return components, relations
 
 except Exception as e:
         if fallback_to_ginza:
