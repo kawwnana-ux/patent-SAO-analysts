@@ -3528,6 +3528,16 @@ def _call_llm_for_sao(text, ginza_candidates):
             "openai パッケージがありません。requirements.txt に openai を追加してください。"
         ) from e
 
+    output_text = response.output_text
+
+if not output_text:
+    raise RuntimeError("LLMから空の応答が返されました。")
+
+print("===== LLM RAW RESULT =====")
+print(output_text)
+print("==========================")
+
+return _json.loads(output_text)
     client = OpenAI(api_key=api_key)
 
     user_prompt = (
@@ -3560,14 +3570,9 @@ def _call_llm_for_sao(text, ginza_candidates):
     return _json.loads(output_text)
 
 
-def analyze_claim_llm(text, fallback_to_ginza=True):
+def analyze_claim_llm(text, fallback_to_ginza=False):
     """
     GiNZA + LLMのハイブリッドSAO解析。
-
-    1. GiNZAで構文・構成要素候補を生成
-    2. その候補をLLMへ渡す
-    3. LLMが特許本文を優先して修正・統合
-    4. 既存アプリと互換の (components, relations) を返す
     """
     cleaned = _clean_claim_text(text)
     if not cleaned:
@@ -3575,17 +3580,14 @@ def analyze_claim_llm(text, fallback_to_ginza=True):
 
     ginza_candidates = _make_ginza_candidates(cleaned)
 
-    try:
-        llm_result = _call_llm_for_sao(cleaned, ginza_candidates)
-        components, relations = _normalize_llm_result(llm_result)
+    llm_result = _call_llm_for_sao(cleaned, ginza_candidates)
 
-        # LLMが極端に空の結果を返した場合は、壊れたグラフを出さずGiNZAへ戻す。
-        if not components and not relations:
-            if fallback_to_ginza:
-                return _ginza_analyze_claim(cleaned)
-            return [], []
+    components, relations = _normalize_llm_result(llm_result)
 
-        return components, relations
+    if not components and not relations:
+        raise RuntimeError("LLMは空のSAO結果を返しました。")
+
+    return components, relations
 
     except Exception as e:
         if fallback_to_ginza:
