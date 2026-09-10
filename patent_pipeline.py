@@ -3597,7 +3597,7 @@ output_text = response.output_text
 if not output_text:
         raise RuntimeError("LLMから空の応答が返されました。")
 
-    return _json.loads(output_text)
+return _json.loads(output_text)
 
 
 def analyze_claim_llm(text, fallback_to_ginza=False):
