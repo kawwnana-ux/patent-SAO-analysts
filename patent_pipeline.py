@@ -3575,7 +3575,7 @@ def analyze_claim_llm(text, fallback_to_ginza=False):
     GiNZA + LLMのハイブリッドSAO解析。
     """
     cleaned = _clean_claim_text(text)
- if not cleaned:
+if not cleaned:
         return [], []
 
     ginza_candidates = _make_ginza_candidates(cleaned)
@@ -3584,12 +3584,12 @@ def analyze_claim_llm(text, fallback_to_ginza=False):
 
     components, relations = _normalize_llm_result(llm_result)
 
-    if not components and not relations:
+if not components and not relations:
         raise RuntimeError("LLMは空のSAO結果を返しました。")
 
     return components, relations
 
-    except Exception as e:
+except Exception as e:
         if fallback_to_ginza:
             components, relations = _ginza_analyze_claim(cleaned)
             # 後からUI側で「LLM失敗→GiNZA」を確認できるようにメタ情報を付与。
