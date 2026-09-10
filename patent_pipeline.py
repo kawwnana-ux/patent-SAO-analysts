@@ -3608,11 +3608,11 @@ def analyze_claim_llm(text, fallback_to_ginza=False):
 if not cleaned:
         return [], []
 
-    ginza_candidates = _make_ginza_candidates(cleaned)
+ginza_candidates = _make_ginza_candidates(cleaned)
 
-    llm_result = _call_llm_for_sao(cleaned, ginza_candidates)
+llm_result = _call_llm_for_sao(cleaned, ginza_candidates)
 
-    components, relations = _normalize_llm_result(llm_result)
+components, relations = _normalize_llm_result(llm_result)
 
 if not components and not relations:
         raise RuntimeError("LLMは空のSAO結果を返しました。")
