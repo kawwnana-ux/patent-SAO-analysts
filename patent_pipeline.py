@@ -3540,7 +3540,7 @@ print("==========================")
 return _json.loads(output_text)
 client = OpenAI(api_key=api_key)
 
-    user_prompt = (
+user_prompt = (
         "【請求項本文】\n"
         + text.strip()
         + "\n\n【GiNZAによる候補（参考。誤りを含む）】\n"
@@ -3548,7 +3548,7 @@ client = OpenAI(api_key=api_key)
         + "\n\n上記の請求項本文だけを根拠として、正しい構成要素と関係を抽出してください。"
     )
 
-    response = client.responses.create(
+response = client.responses.create(
         model=LLM_MODEL,
         instructions=_LLM_SYSTEM_PROMPT,
         input=user_prompt,
@@ -3563,7 +3563,7 @@ client = OpenAI(api_key=api_key)
         },
     )
 
-    output_text = response.output_text
+output_text = response.output_text
     if not output_text:
         raise RuntimeError("LLMから空の応答が返されました。")
 
