@@ -3515,7 +3515,7 @@ def _normalize_llm_result(result):
     return components, relations
 
 
-```python
+
 def _call_llm_for_sao(text, ginza_candidates):
     """OpenAI Responses APIを使ってSAOを構造化抽出する。"""
     api_key = _get_llm_api_key()
