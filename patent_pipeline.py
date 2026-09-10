@@ -3515,9 +3515,11 @@ def _normalize_llm_result(result):
     return components, relations
 
 
+```python
 def _call_llm_for_sao(text, ginza_candidates):
     """OpenAI Responses APIを使ってSAOを構造化抽出する。"""
     api_key = _get_llm_api_key()
+
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY が設定されていません。")
 
@@ -3528,16 +3530,44 @@ def _call_llm_for_sao(text, ginza_candidates):
             "openai パッケージがありません。requirements.txt に openai を追加してください。"
         ) from e
 
+    client = OpenAI(api_key=api_key)
+
+    user_prompt = (
+        "【請求項本文】\n"
+        + text.strip()
+        + "\n\n【GiNZAによる候補（参考。誤りを含む）】\n"
+        + _json.dumps(ginza_candidates, ensure_ascii=False, indent=2)
+        + "\n\n"
+        "上記の請求項本文だけを根拠として、正しい構成要素と関係を抽出してください。"
+    )
+
+    response = client.responses.create(
+        model=LLM_MODEL,
+        instructions=_LLM_SYSTEM_PROMPT,
+        input=user_prompt,
+        text={
+            "format": {
+                "type": "json_schema",
+                "name": "patent_sao",
+                "description": "Japanese patent claim SAO structure",
+                "strict": True,
+                "schema": _LLM_SAO_SCHEMA,
+            }
+        },
+    )
+
     output_text = response.output_text
 
-if not output_text:
-    raise RuntimeError("LLMから空の応答が返されました。")
+    if not output_text:
+        raise RuntimeError("LLMから空の応答が返されました。")
 
-print("===== LLM RAW RESULT =====")
-print(output_text)
-print("==========================")
+    print("===== LLM RAW RESULT =====")
+    print(output_text)
+    print("==========================")
 
-return _json.loads(output_text)
+    return _json.loads(output_text)
+
+
 client = OpenAI(api_key=api_key)
 
 user_prompt = (
