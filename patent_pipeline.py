@@ -3568,9 +3568,10 @@ def _call_llm_for_sao(text, ginza_candidates):
     return _json.loads(output_text)
 
 
-client = OpenAI(api_key=api_key)
 
-user_prompt = (
+    client = OpenAI(api_key=api_key)
+
+    user_prompt = (
         "【請求項本文】\n"
         + text.strip()
         + "\n\n【GiNZAによる候補（参考。誤りを含む）】\n"
@@ -3578,7 +3579,7 @@ user_prompt = (
         + "\n\n上記の請求項本文だけを根拠として、正しい構成要素と関係を抽出してください。"
     )
 
-response = client.responses.create(
+    response = client.responses.create(
         model=LLM_MODEL,
         instructions=_LLM_SYSTEM_PROMPT,
         input=user_prompt,
@@ -3593,10 +3594,13 @@ response = client.responses.create(
         },
     )
 
-output_text = response.output_text
-if not output_text:
+    output_text = response.output_text
+
+    if not output_text:
         raise RuntimeError("LLMから空の応答が返されました。")
+
     return _json.loads(output_text)
+
 
 
 
