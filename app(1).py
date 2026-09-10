@@ -139,7 +139,7 @@ st.markdown(
 )
 
 st.title("🪼 日本語特許請求項SAO構造分析")
-st.caption("GiNZAで構文情報を取得し、LLMで特許請求項の意味を考慮してSAO構造を抽出・可視化します")
+st.caption("SudachiPyで表記ゆれを正規化し、GiNZAの係り受け解析とルールベースの補正だけでSAO構造を抽出・可視化します（LLM不使用）")
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["🪸 1つの請求項を解析", "🐚 2つの請求項を比較", "🔦 まとめて検索", "🪼 従属請求項を展開", "📊 特許統計分析"])
 
@@ -150,21 +150,10 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(["🪸 1つの請求項を解析", "🐚 
 with tab1:
     st.subheader("📝 請求項を入力してください")
 
-    analysis_mode = st.radio(
-        "解析方式",
-        ["GiNZA + LLM（推奨）", "GiNZAのみ"],
-        horizontal=True,
-        key="single_analysis_mode",
-        help="GiNZAは形態素・係り受けなどの構文情報を提供し、LLMは請求項全体の文脈を考慮して構成要素と関係を確定します。"
+    st.info(
+        "🔧 SudachiPy（前処理）＋GiNZA（係り受け解析）＋ルールベース補正のみでSAO構造を抽出します。"
+        "LLMは使用しません。"
     )
-
-    if analysis_mode == "GiNZA + LLM（推奨）":
-        if hasattr(pp, "llm_available") and pp.llm_available():
-            st.success("🤖 LLM解析：利用可能")
-        else:
-            st.warning("⚠️ OPENAI_API_KEYが未設定です。LLM解析はGiNZAへ自動フォールバックします。")
-    else:
-        st.info("🔧 GiNZAのみ：構文解析結果をそのままSAO抽出に使用します。卒論の比較実験用です。")
     text = st.text_area(
         "請求項テキスト",
         height=220,
@@ -179,10 +168,7 @@ with tab1:
         else:
             with st.spinner("解析中..."):
                 try:
-                    if analysis_mode == "GiNZAのみ":
-                        components, relations = pp.analyze_claim_ginza(text)
-                    else:
-                        components, relations = pp.analyze_claim_hybrid(text)
+                    components, relations = pp.analyze_claim_ginza(text)
                     st.session_state.single_result = {
                         "components": components,
                         "relations": relations,
@@ -248,13 +234,7 @@ with tab1:
 with tab2:
     st.subheader("📝 2つの請求項を入力してください")
 
-    compare_analysis_mode = st.radio(
-        "解析方式",
-        ["GiNZA + LLM（推奨）", "GiNZAのみ"],
-        horizontal=True,
-        key="compare_analysis_mode",
-        help="卒論では同じ解析方式で請求項A・Bを比較してください。"
-    )
+    st.caption("SudachiPy＋GiNZA＋ルールベース補正（LLM不使用）で請求項A・Bを解析して比較します。")
 
     col_a, col_b = st.columns(2)
     with col_a:
@@ -274,12 +254,8 @@ with tab2:
         else:
             with st.spinner("解析中..."):
                 try:
-                    if compare_analysis_mode == "GiNZAのみ":
-                        _, relations_a = pp.analyze_claim_ginza(text_a)
-                        _, relations_b = pp.analyze_claim_ginza(text_b)
-                    else:
-                        _, relations_a = pp.analyze_claim_hybrid(text_a)
-                        _, relations_b = pp.analyze_claim_hybrid(text_b)
+                    _, relations_a = pp.analyze_claim_ginza(text_a)
+                    _, relations_b = pp.analyze_claim_ginza(text_b)
 
                     jaccard_score, common, only_a, only_b = pp.jaccard_similarity(relations_a, relations_b)
                     structural_score, structural_detail = pp.structural_similarity(relations_a, relations_b)
