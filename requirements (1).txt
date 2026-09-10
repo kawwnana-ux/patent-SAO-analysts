@@ -1,0 +1,12 @@
+streamlit
+spacy
+ginza
+ja-ginza
+networkx
+matplotlib
+pandas
+numpy
+scipy
+sentence-transformers
+openai>=1.0.0
+japanize-matplotlib
