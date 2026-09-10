@@ -1,0 +1,13 @@
+streamlit
+spacy
+ginza
+ja-ginza
+sudachipy
+sudachidict_core
+networkx
+matplotlib
+pandas
+numpy
+scipy
+sentence-transformers
+japanize-matplotlib
