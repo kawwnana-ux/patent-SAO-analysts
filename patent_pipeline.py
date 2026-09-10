@@ -3538,7 +3538,7 @@ print(output_text)
 print("==========================")
 
 return _json.loads(output_text)
-    client = OpenAI(api_key=api_key)
+client = OpenAI(api_key=api_key)
 
     user_prompt = (
         "【請求項本文】\n"
